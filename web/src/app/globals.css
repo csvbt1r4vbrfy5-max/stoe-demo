@@ -1,0 +1,184 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Premium Dark Theme by Default */
+  --background: oklch(0.12 0.01 250); /* Deep midnight blue/zinc */
+  --foreground: oklch(0.98 0 0);
+  
+  --card: oklch(0.15 0.02 250 / 0.7);
+  --card-foreground: oklch(0.98 0 0);
+  
+  --popover: oklch(0.13 0.02 250 / 0.8);
+  --popover-foreground: oklch(0.98 0 0);
+  
+  /* Neon Electric Blue */
+  --primary: oklch(0.6 0.2 255); 
+  --primary-foreground: oklch(0.98 0 0);
+  
+  /* Rich Purple */
+  --secondary: oklch(0.5 0.25 300);
+  --secondary-foreground: oklch(0.98 0 0);
+  
+  --muted: oklch(0.2 0.02 250);
+  --muted-foreground: oklch(0.7 0 0);
+  
+  --accent: oklch(0.6 0.2 255 / 0.1);
+  --accent-foreground: oklch(0.98 0 0);
+  
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.1);
+  --ring: oklch(0.6 0.2 255);
+  
+  --radius: 1rem;
+}
+
+body {
+  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #080612;
+  color: var(--foreground);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(99, 37, 235, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 10%,  rgba(37, 99, 235, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 80% 90%,  rgba(147, 51, 234, 0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 20% 80%,  rgba(29, 78, 216, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 50% 50%,  rgba(109, 40, 217, 0.10) 0%, transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Animated grid overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating orbs */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle 500px at 20% 30%,  rgba(99, 37, 235, 0.08), transparent),
+    radial-gradient(circle 400px at 80% 70%,  rgba(37, 99, 235, 0.08), transparent),
+    radial-gradient(circle 300px at 60% 20%,  rgba(147, 51, 234, 0.06), transparent);
+  pointer-events: none;
+  z-index: 0;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  50%  { transform: translate(30px, -20px) scale(1.05); }
+  100% { transform: translate(-20px, 30px) scale(0.97); }
+}
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(20, 25, 40, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, rgba(30, 40, 60, 0.4) 0%, rgba(15, 20, 30, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.5);
+}
+
+.glass-input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.glass-input:focus {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@theme inline {
+ --font-heading: var(--font-outfit);
+ --font-sans: var(--font-outfit);
+ --color-ring: var(--ring);
+ --color-input: var(--input);
+ --color-border: var(--border);
+ --color-destructive: var(--destructive);
+ --color-accent-foreground: var(--accent-foreground);
+ --color-accent: var(--accent);
+ --color-muted-foreground: var(--muted-foreground);
+ --color-muted: var(--muted);
+ --color-secondary-foreground: var(--secondary-foreground);
+ --color-secondary: var(--secondary);
+ --color-primary-foreground: var(--primary-foreground);
+ --color-primary: var(--primary);
+ --color-popover-foreground: var(--popover-foreground);
+ --color-popover: var(--popover);
+ --color-card-foreground: var(--card-foreground);
+ --color-card: var(--card);
+ --color-foreground: var(--foreground);
+ --color-background: var(--background);
+ --radius-sm: calc(var(--radius) * 0.6);
+ --radius-md: calc(var(--radius) * 0.8);
+ --radius-lg: var(--radius);
+ --radius-xl: calc(var(--radius) * 1.4);
+ --radius-2xl: calc(var(--radius) * 1.8);
+ --radius-3xl: calc(var(--radius) * 2.2);
+ --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+ }
+  body {
+    @apply text-foreground;
+    /* Force dark mode background globally */
+    background-color: #080612; 
+ }
+  html {
+    @apply font-sans;
+    color-scheme: dark; /* Force dark scrollbars etc */
+ }
+}

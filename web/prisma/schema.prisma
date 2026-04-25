@@ -1,0 +1,151 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  phone     String?  // لتكامل رسائل الواتساب
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String
+  price       Decimal     @db.Decimal(10, 2)
+  type        ProductType
+  imageUrl    String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  physicalDetails PhysicalProduct?
+  digitalDetails  DigitalProduct?
+  orderItems      OrderItem[]
+  reviews         Review[]
+
+  @@index([isActive])
+  @@index([type])
+  @@index([createdAt])
+  @@index([isActive, type])
+  @@index([isActive, createdAt])
+  @@index([name])
+}
+
+model PhysicalProduct {
+  id            String  @id @default(uuid())
+  productId     String  @unique
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockQuantity Int     @default(0)
+  weight        Float?  // kg
+  dimensions    String? // L x W x H
+  color         String?
+  size          String?
+}
+
+model DigitalProduct {
+  id        String  @id @default(uuid())
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fileUrl   String  // رابط الملف في Supabase Storage
+  fileSize  Int?    // بالبايت
+  format    String? // pdf, zip, mp4
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  items       OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id              String    @id @default(uuid())
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity        Int       @default(1)
+  priceAtPurchase Decimal   @db.Decimal(10, 2)
+
+  downloadLink    DownloadLink? // فقط للمنتجات الرقمية
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model DownloadLink {
+  id           String    @id @default(uuid())
+  orderItemId  String    @unique
+  orderItem    OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  token        String    @unique @default(uuid())
+  expiresAt    DateTime
+  isDownloaded Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  @@index([expiresAt])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  author    String
+  rating    Int      // 1-5
+  comment   String
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([productId, createdAt])
+}
+
+model Coupon {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  discount  Int      // percentage 1-100
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
