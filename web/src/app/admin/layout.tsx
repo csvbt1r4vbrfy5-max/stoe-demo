@@ -1,11 +1,38 @@
+"use client";
+
 import Link from "next/link";
-import { LayoutDashboard, ClipboardList, Tag, ArrowLeft, Activity } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Tag, ArrowLeft, Activity, LogOut, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { logoutAction } from "@/app/actions/auth";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logoutAction(); // Call the secure Server Action to delete the HttpOnly cookie
+    window.location.href = '/';
+  };
+
   return (
-    <div className="min-h-screen bg-[#05050A] flex font-sans text-white selection:bg-blue-600/30">
+    <div className="min-h-screen bg-[#05050A] flex flex-col md:flex-row font-sans text-white selection:bg-blue-600/30">
+      
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-white/5 bg-black/40 backdrop-blur-xl z-20 sticky top-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white font-black shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+            1
+          </div>
+          <span className="font-black tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-500">
+            one to one
+          </span>
+        </div>
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 bg-white/5 rounded-xl text-white">
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
       {/* Sidebar — مشترك لجميع صفحات الأدمن */}
-      <aside className="w-72 border-r border-white/5 bg-black/40 backdrop-blur-xl hidden md:flex flex-col p-8 space-y-12 relative z-10">
+      <aside className={`w-full md:w-72 border-r border-white/5 bg-black/40 backdrop-blur-xl flex-col p-8 space-y-8 md:space-y-12 relative z-10 ${isMobileMenuOpen ? "flex" : "hidden md:flex"}`}>
         <div className="flex items-center gap-4 px-2 group">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-[0_0_20px_rgba(37,99,235,0.4)] group-hover:scale-110 transition-transform duration-300">
             1
@@ -45,6 +72,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ArrowLeft size={20} />
             Return to Surface
           </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-all font-bold"
+          >
+            <LogOut size={20} />
+            Logout
+          </button>
         </nav>
 
         <div className="p-6 glass-panel rounded-3xl relative overflow-hidden">

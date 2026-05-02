@@ -1,5 +1,7 @@
 "use server";
 
+import { checkAdmin } from "@/lib/auth";
+
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { writeFile, mkdir, unlink } from "fs/promises";
@@ -7,6 +9,10 @@ import { join } from "path";
 import { existsSync } from "fs";
 
 export async function createProductAction(formData: FormData) {
+  if (!(await checkAdmin())) {
+    return { success: false, message: "Unauthorized" };
+  }
+
   try {
     const name = formData.get("name") as string;
     const price = parseFloat(formData.get("price") as string);
@@ -17,6 +23,18 @@ export async function createProductAction(formData: FormData) {
     let imageUrl = null;
 
     if (image && image.size > 0) {
+      if (image.size > 5 * 1024 * 1024) {
+        return { success: false, message: "حجم الصورة يجب أن لا يتجاوز 5 ميجابايت" };
+      }
+      if (!image.type.startsWith("image/")) {
+        return { success: false, message: "يجب رفع ملف صورة صالح" };
+      }
+      const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      const extension = image.name.split('.').pop()?.toLowerCase();
+      if (!extension || !allowedExtensions.includes(extension)) {
+        return { success: false, message: "امتداد الصورة غير مسموح" };
+      }
+
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
       
@@ -77,6 +95,10 @@ export async function createProductAction(formData: FormData) {
 }
 
 export async function deleteProductAction(id: string) {
+  if (!(await checkAdmin())) {
+    return { success: false, message: "Unauthorized" };
+  }
+
   try {
     const product = await db.product.findUnique({ where: { id } });
     
@@ -112,6 +134,10 @@ export async function deleteProductAction(id: string) {
 }
 
 export async function updateProductAction(id: string, formData: FormData) {
+  if (!(await checkAdmin())) {
+    return { success: false, message: "Unauthorized" };
+  }
+
   try {
     const name = formData.get("name") as string;
     const price = parseFloat(formData.get("price") as string);
@@ -127,6 +153,18 @@ export async function updateProductAction(id: string, formData: FormData) {
     let imageUrl = existingProduct.imageUrl;
 
     if (image && image.size > 0) {
+      if (image.size > 5 * 1024 * 1024) {
+        return { success: false, message: "حجم الصورة يجب أن لا يتجاوز 5 ميجابايت" };
+      }
+      if (!image.type.startsWith("image/")) {
+        return { success: false, message: "يجب رفع ملف صورة صالح" };
+      }
+      const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+      const extension = image.name.split('.').pop()?.toLowerCase();
+      if (!extension || !allowedExtensions.includes(extension)) {
+        return { success: false, message: "امتداد الصورة غير مسموح" };
+      }
+
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
       

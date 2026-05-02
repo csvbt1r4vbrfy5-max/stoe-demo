@@ -16,7 +16,32 @@ export async function checkoutAction(cartItems: CartItem[]) {
       return { success: false, message: "Cart is empty" };
     }
 
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    // Securely fetch products from the database to calculate real total amount
+    const productIds = cartItems.map(item => item.id);
+    const dbProducts = await db.product.findMany({
+      where: { id: { in: productIds } }
+    });
+
+    let totalAmount = 0;
+    const finalItems = [];
+
+    for (const item of cartItems) {
+      const product = dbProducts.find(p => p.id === item.id);
+      if (!product) continue; // Skip invalid products
+
+      const itemTotal = Number(product.price) * item.quantity;
+      totalAmount += itemTotal;
+
+      finalItems.push({
+        productId: product.id,
+        quantity: item.quantity,
+        priceAtPurchase: product.price
+      });
+    }
+
+    if (finalItems.length === 0) {
+      return { success: false, message: "Cart is invalid" };
+    }
 
     // Get or create a default guest user for the demo
     let guestUser = await db.user.findUnique({
@@ -40,11 +65,7 @@ export async function checkoutAction(cartItems: CartItem[]) {
         totalAmount,
         status: "PENDING",
         items: {
-          create: cartItems.map(item => ({
-            productId: item.id,
-            quantity: item.quantity,
-            priceAtPurchase: item.price
-          }))
+          create: finalItems
         }
       }
     });
