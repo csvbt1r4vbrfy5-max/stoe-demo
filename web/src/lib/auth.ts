@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 
-// نستخدم كلمة مرور المشرف كمفتاح لتشفير الجلسة
-const SECRET_KEY = process.env.ADMIN_PASSWORD || "super-secret-default-key-change-it";
+// نستخدم كلمة مرور المشرف كمفتاح لتشفير الجلسة أو مفتاح عشوائي
+const SECRET_KEY = process.env.ADMIN_PASSWORD || crypto.randomUUID();
 
 async function getSignatureKey(secret: string) {
   const enc = new TextEncoder();

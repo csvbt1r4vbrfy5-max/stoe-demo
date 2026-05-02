@@ -7,7 +7,7 @@ export async function loginAction(password: string) {
   // نستخدم كلمة المرور المخصصة للمشرف
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
-  if (password !== ADMIN_PASSWORD) {
+  if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
     return { success: false, message: "كلمة المرور غير صحيحة" };
   }
 
